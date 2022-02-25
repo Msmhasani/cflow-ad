@@ -11,6 +11,7 @@ from utils import *
 from custom_datasets import *
 from custom_models import *
 
+
 OUT_DIR = './viz/'
 
 gamma = 0.0
@@ -54,7 +55,7 @@ def train_meta_epoch(c, epoch, loader, encoder, decoders, optimizer, pool_layers
                 #
                 B, C, H, W = e.size()
                 S = H*W
-                E = B*S    
+                E = B*S
                 #
                 p = positionalencoding2d(P, H, W).to(c.device).unsqueeze(0).repeat(B, 1, 1, 1)
                 c_r = p.reshape(B, P, S).transpose(1, 2).reshape(E, P)  # BHWxP
@@ -204,7 +205,7 @@ def test_meta_fps(c, epoch, loader, encoder, decoders, pool_layers, N):
         torch.cuda.synchronize()
         time_enc = time.time() - start
         start = time.time()
-        for i, (image, _, _) in enumerate(tqdm(loader, disable=c.hide_tqdm_bar)):
+        for i, (image, _, _) in enumerate(tqdm(loader, disable = c.hide_tqdm_bar)):
             # data
             image = image.to(c.device) # single scale
             _ = encoder(image)  # BxCxHxW
@@ -222,7 +223,7 @@ def test_meta_fps(c, epoch, loader, encoder, decoders, pool_layers, N):
                 S = H*W
                 E = B*S
                 #
-                if i == 0:  # get stats
+                if i == 0: # get stats
                     height.append(H)
                     width.append(W)
                 #
@@ -301,7 +302,7 @@ def train(c):
             train_meta_epoch(c, epoch, train_loader, encoder, decoders, optimizer, pool_layers, N)
         else:
             raise NotImplementedError('{} is not supported action type!'.format(c.action_type))
-        
+
         #height, width, test_image_list, test_dist, gt_label_list, gt_mask_list = test_meta_fps(
         #    c, epoch, test_loader, encoder, decoders, pool_layers, N)
 
@@ -361,13 +362,13 @@ def train(c):
                 pro = []  # per region overlap
                 iou = []  # per image iou
                 # pro: find each connected gt region, compute the overlapped pixels between the gt region and predicted region
-                # iou: for each image, compute the ratio, i.e. intersection/union between the gt and predicted binary map 
+                # iou: for each image, compute the ratio, i.e. intersection/union between the gt and predicted binary map
                 for i in range(len(binary_score_maps)):    # for i th image
                     # pro (per region level)
                     label_map = label(gt_mask[i], connectivity=2)
                     props = regionprops(label_map)
                     for prop in props:
-                        x_min, y_min, x_max, y_max = prop.bbox    # find the bounding box of an anomaly region 
+                        x_min, y_min, x_max, y_max = prop.bbox    # find the bounding box of an anomaly region
                         cropped_pred_label = binary_score_maps[i][x_min:x_max, y_min:y_max]
                         # cropped_mask = gt_mask[i][x_min:x_max, y_min:y_max]   # bug!
                         cropped_mask = prop.filled_image    # corrected!
@@ -403,7 +404,7 @@ def train(c):
             idx = fprs <= expect_fpr  # find the indexs of fprs that is less than expect_fpr (default 0.3)
             fprs_selected = fprs[idx]
             fprs_selected = rescale(fprs_selected)  # rescale fpr [0,0.3] -> [0, 1]
-            pros_mean_selected = pros_mean[idx]    
+            pros_mean_selected = pros_mean[idx]
             seg_pro_auc = auc(fprs_selected, pros_mean_selected)
             _ = seg_pro_obs.update(100.0*seg_pro_auc, epoch)
     #

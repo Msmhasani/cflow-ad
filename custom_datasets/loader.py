@@ -15,7 +15,7 @@ MVTEC_CLASS_NAMES = ['bottle', 'cable', 'capsule', 'carpet', 'grid',
                'hazelnut', 'leather', 'metal_nut', 'pill', 'screw',
                'tile', 'toothbrush', 'transistor', 'wood', 'zipper']
 
-STC_CLASS_NAMES = ['01', '02', '03', '04', '05', '06', 
+STC_CLASS_NAMES = ['01', '02', '03', '04', '05', '06',
                 '07', '08', '09', '10', '11', '12'] #, '13' - no ground-truth]
 
 
@@ -132,6 +132,7 @@ class StcDataset(Dataset):
 
 class MVTecDataset(Dataset):
     def __init__(self, c, is_train=True):
+        print('-----------> MVTEC_CLASS_NAMES:',MVTEC_CLASS_NAMES , '\n----\n' ,c.class_name, '\n\n')
         assert c.class_name in MVTEC_CLASS_NAMES, 'class_name: {}, should be in {}'.format(c.class_name, MVTEC_CLASS_NAMES)
         self.dataset_path = c.data_path
         self.class_name = c.class_name
@@ -167,7 +168,7 @@ class MVTecDataset(Dataset):
         if self.class_name in ['zipper', 'screw', 'grid']:  # handle greyscale classes
             x = np.expand_dims(np.array(x), axis=2)
             x = np.concatenate([x, x, x], axis=2)
-            
+
             x = Image.fromarray(x.astype('uint8')).convert('RGB')
         #
         x = self.normalize(self.transform_x(x))

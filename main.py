@@ -2,11 +2,13 @@ from __future__ import print_function
 import os, random, time, math
 import numpy as np
 import torch
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
+
 import timm
 from timm.data import resolve_data_config
 from config import get_args
 from train import train
-
 
 def init_seeds(seed=0):
     random.seed(seed)
@@ -14,7 +16,6 @@ def init_seeds(seed=0):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-
 
 def main(c):
     # model
@@ -45,9 +46,10 @@ def main(c):
     c.dropout = 0.0  # dropout in s-t-networks
     # dataloader parameters
     if c.dataset == 'mvtec':
-        c.data_path = './data/MVTec-AD'
+        c.data_path = "/MH/data/mvtec"
+        # c.data_path = './data/MVTec-AD'
     elif c.dataset == 'stc':
-        c.data_path = './data/STC/shanghaitech'
+        c.data_path = 'data/STC/shanghaitech'
     elif c.dataset == 'video':
         c.data_path = c.video_path
     else:
